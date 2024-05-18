@@ -27,25 +27,37 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            border-radius: 50%;
             width: 70px;
             height: 70px;
-            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s ease;
-        }
-        .play-button:hover {
-            background: rgba(0, 0, 0, 0.8);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(120deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+            background-size: 2000% 2000%;
+            animation: rainbow 5s ease infinite;
         }
         .play-button:before {
+            content: '';
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: block;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .play-button.play:before {
             content: '▶';
             font-size: 36px;
-            margin-left: 5px;
+            color: #333;
+        }
+        .play-button.pause:before {
+            content: '⏸';
+            font-size: 36px;
+            color: #333;
         }
         .song-title {
             background: rgba(0, 0, 0, 0.5);
@@ -56,13 +68,19 @@
             color: white;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
         }
+
+        @keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
     </style>
 </head>
 <body>
     <div id="app" class="audio-player" @click="handleClick">
         <img :src="cover" alt="Cover Image">
         <div class="song-title">{{ title }}</div>
-        <div class="play-button" v-show="showPlayButton"></div>
+        <button class="play-button" :class="{ 'play': !isPlaying, 'pause': isPlaying }"></button>
         <audio ref="audio" :src="audio">
             Your browser does not support the audio element.
         </audio>
@@ -76,17 +94,22 @@
                 title: '',
                 cover: '',
                 audio: '',
-                showPlayButton: false
+                isPlaying: false
             },
             methods: {
                 handleClick() {
                     if (this.showPlayButton) {
-                        const audio = this.$refs.audio;
-                        if (audio.paused) {
-                            audio.play();
-                        } else {
-                            audio.pause();
-                        }
+                        this.togglePlay();
+                    }
+                },
+                togglePlay() {
+                    const audio = this.$refs.audio;
+                    if (audio.paused) {
+                        audio.play();
+                        this.isPlaying = true;
+                    } else {
+                        audio.pause();
+                        this.isPlaying = false;
                     }
                 }
             },
