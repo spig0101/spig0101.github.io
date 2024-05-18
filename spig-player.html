@@ -38,30 +38,37 @@
             background: linear-gradient(120deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
             background-size: 2000% 2000%;
             animation: rainbow 5s ease infinite;
+            overflow: hidden;
         }
-        .play-button.play:before, .play-button.pause:before {
+        .play-button:before, .play-button:after {
             content: '';
-            width: 0;
-            height: 0;
-            border-style: solid;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
         }
         .play-button.play:before {
-            border-width: 10px 0 10px 16px;
-            border-color: transparent transparent transparent white;
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            animation: waterFlow 2s infinite ease-in-out;
         }
         .play-button.pause:before {
-            border-width: 0;
-            background-color: white;
-            width: 14px;
-            height: 20px;
+            width: 22px;
+            height: 50px;
+            background: none;
             display: flex;
             justify-content: space-between;
         }
         .play-button.pause:before::after, .play-button.pause:before::before {
             content: '';
-            background-color: white;
-            width: 4px;
-            height: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            width: 10px;
+            height: 100%;
+            border-radius: 2px;
+            animation: waterFlow 2s infinite ease-in-out;
         }
         .song-title {
             background: rgba(0, 0, 0, 0.5);
@@ -77,6 +84,11 @@
             0%{background-position:0% 82%}
             50%{background-position:100% 19%}
             100%{background-position:0% 82%}
+        }
+        @keyframes waterFlow {
+            0% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(5px); }
+            100% { transform: translate(-50%, -50%) translateY(0px); }
         }
     </style>
 </head>
