@@ -56,6 +56,19 @@
         }
     </style>
     <script>
+        // 获取URL参数或使用默认值
+        const urlParams = new URLSearchParams(window.location.search);
+        const titleParam = urlParams.get('title') || '村长在听：Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·普洛特尼科夫)';
+        const coverParam = urlParams.get('cover') || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhk39QOaco33dUaUt4tGG1joNuPMkOSP00qvUiQvT2_zYMBHMKht3b_jxkRr_zvHmEMCUafcICVZZ8XwyPG3rgoHyw6XqyT5fDsA0bzeT4LeK7YBYHT7WFmHFWQHACWkgb-E6nS5J605qQiI251-8-EBnoBKxgkHWr4rv5oXmyGa9cBSV_ZPah8JUgqK20/s320/_6129931c-98eb-4326-99e9-181132bfdfdf.jpeg';
+        const audioParam = urlParams.get('audio') || 'https://cdn1.suno.ai/1871124d-37fa-4aa8-b4e7-274f4f95081d.mp3';
+
+        // 更新标题、封面和音乐地址
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById("songTitle").innerText = titleParam;
+            document.querySelector('.audio-player img').src = coverParam;
+            document.getElementById("audioSource").src = audioParam;
+        });
+
         function togglePlay() {
             var audio = document.getElementById("audio");
             var playButton = document.getElementById("play-button");
@@ -71,32 +84,13 @@
 </head>
 <body>
     <div class="audio-player" onclick="togglePlay()">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhk39QOaco33dUaUt4tGG1joNuPMkOSP00qvUiQvT2_zYMBHMKht3b_jxkRr_zvHmEMCUafcICVZZ8XwyPG3rgoHyw6XqyT5fDsA0bzeT4LeK7YBYHT7WFmHFWQHACWkgb-E6nS5J605qQiI251-8-EBnoBKxgkHWr4rv5oXmyGa9cBSV_ZPah8JUgqK20/s320/_6129931c-98eb-4326-99e9-181132bfdfdf.jpeg" alt="Cover Image">
-        <div class="song-title">村长在听：<span id="songTitle">Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·普洛特尼科夫)</span></div>
+        <img src="" alt="Cover Image">
+        <div class="song-title">村长在听：<span id="songTitle"></span></div>
         <div id="play-button" class="play-button"></div>
         <audio id="audio">
             <source id="audioSource" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
     </div>
-
-    <script>
-        // 获取URL参数
-        const urlParams = new URLSearchParams(window.location.search);
-        const titleParam = urlParams.get('title');
-        const coverParam = urlParams.get('cover');
-        const audioParam = urlParams.get('audio');
-
-        // 更新标题、封面和音乐地址
-        if(titleParam) {
-            document.getElementById("songTitle").innerText = titleParam;
-        }
-        if(coverParam) {
-            document.querySelector('.audio-player img').src = coverParam;
-        }
-        if(audioParam) {
-            document.getElementById("audioSource").src = audioParam;
-        }
-    </script>
 </body>
 </html>
