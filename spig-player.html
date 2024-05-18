@@ -21,6 +21,7 @@
             display: none;
         }
         .play-button {
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -66,7 +67,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById("songTitle").innerText = titleParam;
             document.querySelector('.audio-player img').src = coverParam;
-            document.getElementById("audioSource").src = audioParam;
+            const audio = document.getElementById("audio");
+            audio.src = audioParam;
+            audio.onloadeddata = function() {
+                document.getElementById("play-button").style.display = "flex";
+            };
         });
 
         function togglePlay() {
