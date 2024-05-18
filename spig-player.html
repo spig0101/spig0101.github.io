@@ -9,12 +9,13 @@
             background-color: #121212;
             color: white;
             font-family: Arial, sans-serif;
+            margin: 0;
         }
         .audio-player {
             position: relative;
             width: 100%;
             max-width: 320px;
-            margin: 50px auto;
+            margin: 0 auto;
             cursor: pointer;
             text-align: center;
         }
@@ -139,7 +140,7 @@
             },
             mounted() {
                 const urlParams = new URLSearchParams(window.location.search);
-                this.title = urlParams.get('title') || '村长在听：Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·Плотников)';
+                this.title = urlParams.get('title') || 'Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·Плотников)';
                 this.cover = urlParams.get('cover') || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhk39QOaco33dUaUt4tGG1joNuPMkOSP00qvUiQvT2_zYMBHMKht3b_jxkRr_zvHmEMCUafcICVZZ8XwyPG3rgoHyw6XqyT5fDsA0bzeT4LeK7YBYHT7WFmHFWQHACWkgb-E6nS5J605qQiI251-8-EBnoBKxgkHWr4rv5oXmyGa9cBSV_ZPah8JUgqK20/s320/_6129931c-98eb-4326-99e9-181132bfdfdf.jpeg';
                 this.audio = urlParams.get('audio') || 'https://cdn1.suno.ai/1871124d-37fa-4aa8-b4e7-274f4f95081d.mp3';
 
