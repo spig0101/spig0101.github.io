@@ -39,25 +39,29 @@
             background-size: 2000% 2000%;
             animation: rainbow 5s ease infinite;
         }
-        .play-button:before {
+        .play-button.play:before, .play-button.pause:before {
             content: '';
-            width: 40px;
-            height: 40px;
-            background-color: white;
-            border-radius: 50%;
-            display: block;
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 0;
+            height: 0;
+            border-style: solid;
         }
         .play-button.play:before {
-            content: '▶';
-            font-size: 36px;
-            color: #333;
+            border-width: 10px 0 10px 16px;
+            border-color: transparent transparent transparent white;
         }
         .play-button.pause:before {
-            content: '⏸';
-            font-size: 36px;
-            color: #333;
+            border-width: 0;
+            background-color: white;
+            width: 14px;
+            height: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .play-button.pause:before::after, .play-button.pause:before::before {
+            content: '';
+            background-color: white;
+            width: 4px;
+            height: 20px;
         }
         .song-title {
             background: rgba(0, 0, 0, 0.5);
@@ -94,7 +98,8 @@
                 title: '',
                 cover: '',
                 audio: '',
-                isPlaying: false
+                isPlaying: false,
+                showPlayButton: false
             },
             methods: {
                 handleClick() {
@@ -115,7 +120,7 @@
             },
             mounted() {
                 const urlParams = new URLSearchParams(window.location.search);
-                this.title = '村长在听：' + (urlParams.get('title') || 'Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·普洛特尼科夫)');
+                this.title = '村长在听：' + (urlParams.get('title') || 'Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·Плотников)');
                 this.cover = urlParams.get('cover') || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhk39QOaco33dUaUt4tGG1joNuPMkOSP00qvUiQvT2_zYMBHMKht3b_jxkRr_zvHmEMCUafcICVZZ8XwyPG3rgoHyw6XqyT5fDsA0bzeT4LeK7YBYHT7WFmHFWQHACWkgb-E6nS5J605qQiI251-8-EBnoBKxgkHWr4rv5oXmyGa9cBSV_ZPah8JUgqK20/s320/_6129931c-98eb-4326-99e9-181132bfdfdf.jpeg';
                 this.audio = urlParams.get('audio') || 'https://cdn1.suno.ai/1871124d-37fa-4aa8-b4e7-274f4f95081d.mp3';
 
