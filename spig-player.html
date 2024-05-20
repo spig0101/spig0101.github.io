@@ -26,9 +26,6 @@
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
-        .audio-player audio {
-            display: none;
-        }
         .play-button {
             display: none;
             position: absolute;
@@ -92,7 +89,63 @@
             border-bottom-left-radius: 15px;
             border-bottom-right-radius: 15px;
         }
-
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #ff4500;
+            transition: width 0.1s linear;
+        }
+        .time-indicator {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            font-size: 12px;
+        }
+        .drag-indicator {
+            position: absolute;
+            top: -25px;
+            left: -25px;
+            width: 70px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 12px;
+            border-radius: 5px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .drag-indicator.show {
+            display: flex;
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
         @keyframes flame {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
@@ -101,13 +154,18 @@
     </style>
 </head>
 <body>
-    <div id="app" class="audio-player" @click="handleClick">
+    <div id="app" class="audio-player" @click="handleClick" @mousedown="startDrag" @mouseup="stopDrag" @mousemove="handleDrag">
         <img :src="cover" alt="Cover Image">
         <div class="song-title">{{ title }}</div>
-        <button class="play-button" :class="{ 'play': !isPlaying, 'pause': isPlaying }"></button>
-        <audio ref="audio" :src="audio">
-            Your browser does not support the audio element.
-        </audio>
+        <div class="play-button" :class="{ 'play': !isPlaying, 'pause': isPlaying }"></div>
+        <div v-if="loading" class="loading-spinner"></div>
+        <div class="progress-container" @click.stop="seek($event)">
+            <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+        </div>
+        <div class="time-indicator">
+            <span>{{ formatTime(currentTime) }}</span> / <span>{{ formatTime(totalTime) }}</span>
+        </div>
+        <div class="drag-indicator" :class="{ 'show': isDragging }">Drag to seek</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
@@ -117,24 +175,92 @@
             data: {
                 title: '',
                 cover: '',
-                audio: '',
+                audioSrc: '',
+                audio: null,
                 isPlaying: false,
-                showPlayButton: false
+                showPlayButton: false,
+                loading: false,
+                progress: 0,
+                currentTime: 0,
+                totalTime: 0,
+                isDragging: false,
+                dragStartX: 0
             },
             methods: {
                 handleClick() {
-                    if (this.showPlayButton) {
+                    if (!this.audio) {
+                        this.audio = new Audio(this.audioSrc);
+                        this.audio.loop = true;
+                        this.loading = true;
+                        this.audio.addEventListener('canplay', () => {
+                            this.showPlayButton = true;
+                            this.loading = false;
+                            this.audio.play();
+                            this.isPlaying = true;
+                        });
+                        this.audio.addEventListener('timeupdate', this.updateProgress);
+                        this.audio.addEventListener('timeupdate', this.updateTime);
+                    } else {
                         this.togglePlay();
                     }
                 },
                 togglePlay() {
-                    const audio = this.$refs.audio;
-                    if (audio.paused) {
-                        audio.play();
+                    if (this.audio.paused) {
+                        this.audio.play();
                         this.isPlaying = true;
                     } else {
-                        audio.pause();
+                        this.audio.pause();
                         this.isPlaying = false;
+                    }
+                },
+                updateProgress() {
+                    if (this.audio) {
+                        this.progress = (this.audio.currentTime / this.audio.duration) * 100;
+                    }
+                },
+                updateTime() {
+                    if (this.audio) {
+                        this.currentTime = Math.floor(this.audio.currentTime);
+                        this.totalTime = Math.floor(this.audio.duration);
+                    }
+                },
+                seek(event) {
+                    if (this.audio) {
+                        const rect = event.target.getBoundingClientRect();
+                        const offsetX = event.clientX - rect.left;
+                        const seekTime = (offsetX / rect.width) * this.audio.duration;
+                        this.audio.currentTime = seekTime;
+                        this.updateProgress();
+                    }
+                },
+                formatTime(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                },
+                startDrag(event) {
+                    this.isDragging = true;
+                    this.dragStartX = event.clientX;
+                },
+                stopDrag() {
+                    if (this.isDragging) {
+                        this.isDragging = false;
+                        this.dragStartX = 0;
+                        this.dragIndicatorTimeout = setTimeout(() => {
+                            this.$refs.dragIndicator.style.display = 'none';
+                        }, 2000);
+                    }
+                },
+                handleDrag(event) {
+                    if (this.isDragging) {
+                        const rect = this.$el.getBoundingClientRect();
+                        const offsetX = event.clientX - rect.left;
+                        const percent = offsetX / rect.width;
+                        this.progress = percent * 100;
+                        const seekTime = percent * this.audio.duration;
+                        this.$refs.dragIndicator.style.left = `${offsetX}px`;
+                        this.$refs.dragIndicator.style.display = 'flex';
+                        this.$refs.dragIndicator.innerText = this.formatTime(seekTime);
                     }
                 }
             },
@@ -142,13 +268,7 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 this.title = urlParams.get('title') || 'Нищенская. Сергей Анатольевич Плотников(贫民窟，谢尔盖·安纳托利耶维奇·Плотников)';
                 this.cover = urlParams.get('cover') || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhk39QOaco33dUaUt4tGG1joNuPMkOSP00qvUiQvT2_zYMBHMKht3b_jxkRr_zvHmEMCUafcICVZZ8XwyPG3rgoHyw6XqyT5fDsA0bzeT4LeK7YBYHT7WFmHFWQHACWkgb-E6nS5J605qQiI251-8-EBnoBKxgkHWr4rv5oXmyGa9cBSV_ZPah8JUgqK20/s320/_6129931c-98eb-4326-99e9-181132bfdfdf.jpeg';
-                this.audio = urlParams.get('audio') || 'https://cdn1.suno.ai/1871124d-37fa-4aa8-b4e7-274f4f95081d.mp3';
-
-                const audio = this.$refs.audio;
-                audio.addEventListener('canplay', () => {
-                    this.showPlayButton = true;
-                    document.querySelector('.play-button').style.display = 'flex';
-                });
+                this.audioSrc = urlParams.get('audio') || 'https://cdn1.suno.ai/1871124d-37fa-4aa8-b4e7-274f4f95081d.mp3';
             }
         });
     </script>
